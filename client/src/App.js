@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
@@ -103,7 +103,7 @@ function App() {
                   element: <Dashboard />,
                   roles: ["Admin", "Manager", "User"],
                 },
-                { path: "/team", element: <Team />, roles: ["Admin"] },
+                { path: "/team", element: <Team />, roles: ["Admin","Manager"] },
                 {
                   path: "/contacts",
                   element: <Contacts />,
