@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Team from "./scenes/team";
 
-// import { ToastContainer, toast } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-
+import { toast, ToastContainer } from "react-toastify";
 import Invoices from "./scenes/invoices";
 import Contacts from "./scenes/contacts";
 import Form from "./scenes/form";
@@ -22,22 +21,14 @@ import { clearUserInfo, setUserInfo } from "./features/userSlice.js";
 import axios from "axios";
 import Unauthorized from "./components/UnAuthorized.jsx";
 
-function App() {
-  const [theme, colorMode] = useMode();
+const App = () => {
   const [isSidebar, setIsSidebar] = useState(true);
-  // Simulate authentication state
-  const [userData, setUserData] = useState({
-    name: "",
-    email: "",
-    role: "",
-  });
+  const [isAuthLoading, setIsAuthLoading] = useState(true); // Loading state for authentication
   const dispatch = useDispatch();
-  const [isData, setIsData] = useState(true);
-  const [isAuthLoading, setIsAuthLoading] = useState(true); // Add loading state for authentication
-  //get user from redux store
+  const navigate = useNavigate(); // For redirecting
   const user = useSelector((state) => state.user.user);
-  console.log(user);
-  // Authentication state based on user presence
+  const [theme, colorMode] = useMode();
+  // Determine if the user is authenticated
   const isAuthenticated = Boolean(user);
 
   const getLoggedUser = async () => {
@@ -45,30 +36,79 @@ function App() {
     try {
       const response = await axios.get(
         "http://localhost:5000/api/auth/current-user",
-        {
-          withCredentials: true, // Send cookies
-        }
+        { withCredentials: true } // Send cookies
       );
 
+      // If user is authenticated, update the Redux store
       dispatch(setUserInfo(response.data?.data));
       console.log("User data:", response.data?.data);
-      setUserData(response.data?.data);
-      setIsData(true);
     } catch (error) {
       console.error(
         "Error fetching user data:",
         error.response?.data?.message || error.message
       );
-      dispatch(clearUserInfo());
-      setIsData(false);
+
+      // Handle access token expiration
+      if (error.response?.data?.message === "jwt expired") {
+        // toast.error("token expired")
+        try {
+          // Attempt to refresh the tokens
+          const refreshResponse = await axios.post(
+            "http://localhost:5000/api/auth/refresh-token",
+            {},
+            { withCredentials: true } // Send cookies
+          );
+
+          console.log("Tokens refreshed successfully");
+          // Retry fetching user data after refreshing tokens
+          const retryResponse = await axios.get(
+            "http://localhost:5000/api/auth/current-user",
+            { withCredentials: true }
+          ) ;
+
+          // Update Redux store with new user data
+          dispatch(setUserInfo(retryResponse.data?.data));
+          console.log("User data after refresh:", retryResponse.data?.data);
+        } catch (refreshError) {
+          console.error(
+            "Error refreshing tokens:",
+            refreshError.response?.data?.message || refreshError.message
+          );
+
+          // If both tokens are expired, clear the user info and redirect to login
+          if (
+            refreshError.response?.data?.message === "jwt expired"
+          ) {
+            console.error("Both tokens have expired. Redirecting to login...");
+            dispatch(clearUserInfo());
+            navigate("/login"); // Redirect to login page
+          }
+          else{
+            toast.error("something went wrong!")
+          }
+        }
+      } else {
+        // Other errors
+        console.log("Unhandled error:", error.response?.data);
+        toast.error("something went wrong!")
+        dispatch(clearUserInfo());
+        navigate("/login"); // Redirect to login page
+      }
     } finally {
-      setIsAuthLoading(false); // Stop loading after check
+      setIsAuthLoading(false); // Stop loading after checks
     }
   };
 
   useEffect(() => {
     getLoggedUser();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login"); // Redirect unauthenticated users to login
+    }
+  }, [isAuthenticated, navigate]);
+
   if (isAuthLoading) {
     // Show a loading spinner or placeholder while authentication is being verified
     return (
@@ -79,6 +119,7 @@ function App() {
   }
   return (
     <ColorModeContext.Provider value={colorMode}>
+      <ToastContainer/>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
@@ -103,11 +144,15 @@ function App() {
                   element: <Dashboard />,
                   roles: ["Admin", "Manager", "User"],
                 },
-                { path: "/team", element: <Team />, roles: ["Admin","Manager"] },
+                {
+                  path: "/team",
+                  element: <Team />,
+                  roles: ["Admin", "Manager"],
+                },
                 {
                   path: "/contacts",
                   element: <Contacts />,
-                  roles: ["Manager","Admin"],
+                  roles: ["Manager", "Admin"],
                 },
                 {
                   path: "/invoices",
@@ -141,6 +186,6 @@ function App() {
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
-}
+};
 
 export default App;
