@@ -1,11 +1,11 @@
-import { Typography, Box, useTheme } from "@mui/material";
+import { Typography, Box, useTheme, AlertTitle } from "@mui/material";
 import { tokens } from "../theme";
 import { getToken } from "../services/localStorageService";
 
 const Header = ({ title, subtitle }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const token = getToken("token");
+  // const token = getToken("token");
   return (
     <Box mb="30px">
       <Typography
@@ -14,7 +14,7 @@ const Header = ({ title, subtitle }) => {
         fontWeight="bold"
         sx={{ m: "0 0 5px 0" }}
       >
-       {token?.user?.role}
+      {title}
       </Typography>
       <Typography variant="h5" color={colors.greenAccent[400]}>
         {subtitle}

@@ -1,9 +1,16 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Team from "./scenes/team";
+import Calender from "./scenes/calendar/calendar.jsx";
 
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -31,7 +38,7 @@ const App = () => {
   // Determine if the user is authenticated
   const isAuthenticated = Boolean(user);
 
-  const getLoggedUser = async () => {
+  const getLoggedUser = useCallback(async () => {
     setIsAuthLoading(true); // Start loading
     try {
       const response = await axios.get(
@@ -64,7 +71,7 @@ const App = () => {
           const retryResponse = await axios.get(
             "http://localhost:5000/api/auth/current-user",
             { withCredentials: true }
-          ) ;
+          );
 
           // Update Redux store with new user data
           dispatch(setUserInfo(retryResponse.data?.data));
@@ -76,38 +83,38 @@ const App = () => {
           );
 
           // If both tokens are expired, clear the user info and redirect to login
-          if (
-            refreshError.response?.data?.message === "jwt expired"
-          ) {
+          if (refreshError.response?.data?.message === "jwt expired") {
             console.error("Both tokens have expired. Redirecting to login...");
             dispatch(clearUserInfo());
             navigate("/login"); // Redirect to login page
-          }
-          else{
-            toast.error("something went wrong!")
+          } else {
+            console.log(refreshError.response?.data);
+            toast.error("something went wrong!");
           }
         }
       } else {
         // Other errors
         console.log("Unhandled error:", error.response?.data);
-        toast.error("something went wrong!")
+        // toast.error(error.response?.data?.message);
         dispatch(clearUserInfo());
-        navigate("/login"); // Redirect to login page
+        // navigate("/login"); // Redirect to login page
       }
     } finally {
       setIsAuthLoading(false); // Stop loading after checks
     }
-  };
-
+  }, [dispatch, navigate]);
+  const location = useLocation();
+  console.log(location.pathname); // Output: Current path, e.g., "/home"
   useEffect(() => {
     getLoggedUser();
   }, []);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login"); // Redirect unauthenticated users to login
-    }
-  }, [isAuthenticated, navigate]);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     console.log("it is redirecting me")
+  //     navigate("/login"); // Redirect unauthenticated users to login
+  //   }
+  // }, [isAuthenticated, navigate]);
 
   if (isAuthLoading) {
     // Show a loading spinner or placeholder while authentication is being verified
@@ -119,7 +126,7 @@ const App = () => {
   }
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ToastContainer/>
+      <ToastContainer />
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
@@ -132,10 +139,7 @@ const App = () => {
                 path="/login"
                 element={isAuthenticated ? <Navigate to="/" /> : <Login />}
               />
-              <Route
-                path="/signup"
-                element={isAuthenticated ? <Navigate to="/" /> : <Signup />}
-              />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
               {/* Protected Routes */}
               {[
@@ -157,6 +161,11 @@ const App = () => {
                 {
                   path: "/invoices",
                   element: <Invoices />,
+                  roles: ["Admin", "Manager"],
+                },
+                {
+                  path: "/calender",
+                  element: <Calender />,
                   roles: ["Admin", "Manager"],
                 },
                 {

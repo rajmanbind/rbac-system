@@ -1,12 +1,4 @@
-import {
-  Box,
-  IconButton,
-  useTheme,
-  MenuItem,
-  ClickAwayListener,
-  Popper,
-  Paper,
-} from "@mui/material";
+import { Box, IconButton, useTheme, MenuItem, Menu } from "@mui/material";
 import { useContext, useState } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import InputBase from "@mui/material/InputBase";
@@ -40,10 +32,10 @@ const Topbar = () => {
 
   const navigate = useNavigate();
 
-const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
-    dispatch(clearUserInfo());
+
     setLoading(true);
     try {
       const response = await axios.post(
@@ -53,11 +45,13 @@ const dispatch = useDispatch()
           withCredentials: true, // Send cookies
         }
       );
+      console.log(response.data)
       // Success
-      toast.success(response.data.message || "Logout successful!");
-      setTimeout(() => {
+      // toast.success(response.data.message || "Logout successful!");
+      dispatch(clearUserInfo());
+      // setTimeout(() => {
         navigate("/login"); // Redirect to login page after successful signup
-      }, 2500);
+      // }, 2500);
     } catch (error) {
       // Error handling
       const errorMessage =
@@ -67,76 +61,65 @@ const dispatch = useDispatch()
       setLoading(false); // Stop loading
     }
   };
-  return (
-    <Box display="flex" justifyContent="space-between" p={2} sx={{background: `${colors.primary[400]} !important`,}}>
-      {/* SEARCH BAR */}
-      <ToastContainer />
-      <Box
-        display="flex"
-        backgroundColor={colors.primary[400]}
-        borderRadius="3px"
-      >
-        <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-        <IconButton type="button" sx={{ p: 1 }}>
-          <SearchIcon />
-        </IconButton>
-      </Box>
 
-      {/* ICONS */}
-      <Box display="flex">
-        <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === "dark" ? (
-            <DarkModeOutlinedIcon />
-          ) : (
-            <LightModeOutlinedIcon />
-          )}
-        </IconButton>
-        <IconButton>
-          <NotificationsOutlinedIcon />
-        </IconButton>
-        <IconButton>
-          <SettingsOutlinedIcon />
-        </IconButton>
-        <IconButton onClick={handleMenuOpen}>
-          <PersonOutlinedIcon />
-        </IconButton>
-        <Popper
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          placement="bottom-end"
-          disablePortal={false} // Ensures Popper renders in the portal to handle stacking
-          modifiers={[
-            {
-              name: "zIndex",
-              enabled: true,
-              options: {
-                zIndex: 2000, // Set a high z-index value
-              },
-            },
-          ]}
-          sx={{
-            zIndex: 2000, // Directly set z-index here for compatibility
-            color: "black",
-          }}
+
+  return (
+    <div>
+      <ToastContainer />
+
+      <Box display="flex" justifyContent="space-between" p={2}>
+        {/* SEARCH BAR */}
+        <Box
+          display="flex"
+          backgroundColor={colors.primary[400]}
+          borderRadius="3px"
         >
-          <ClickAwayListener onClickAway={handleMenuClose}>
-            <Paper
-              sx={{
-                mt: 1,
-                minWidth: 150,
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                borderRadius: "4px",
-                overflow: "hidden",
+          <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
+          <IconButton type="button" sx={{ p: 1 }}>
+            <SearchIcon />
+          </IconButton>
+        </Box>
+
+        {/* ICONS */}
+        <Box display="flex" style={{ position: "relative" }}>
+          <IconButton onClick={colorMode.toggleColorMode}>
+            {theme.palette.mode === "dark" ? (
+              <DarkModeOutlinedIcon />
+            ) : (
+              <LightModeOutlinedIcon />
+            )}
+          </IconButton>
+          <IconButton>
+            <NotificationsOutlinedIcon />
+          </IconButton>
+          <IconButton>
+            <SettingsOutlinedIcon />
+          </IconButton>
+          <div >
+            <IconButton onClick={handleMenuOpen}>
+              <PersonOutlinedIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
               }}
             >
               <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
               <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Paper>
-          </ClickAwayListener>
-        </Popper>
+            </Menu>
+          </div>
+        </Box>
       </Box>
-    </Box>
+    </div>
   );
 };
 

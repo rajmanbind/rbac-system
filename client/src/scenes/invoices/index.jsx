@@ -1,4 +1,4 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme,Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
@@ -7,6 +7,18 @@ import Header from "../../components/Header";
 const Invoices = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const handleDelete = (id) => {
+    console.log("Delete user with ID:", id);
+    // Add logic to delete user (e.g., API call)
+    alert(`User with ID ${id} will be deleted.`);
+  };
+
+  const handleUpdate = (row) => {
+    console.log("Update user:", row);
+    // Add logic to update user (e.g., open a modal or redirect to an edit form)
+    alert(`Update functionality for ${row.name} will be implemented.`);
+  };
   const columns = [
     { field: "id", headerName: "ID" },
     {
@@ -39,6 +51,31 @@ const Invoices = () => {
       field: "date",
       headerName: "Date",
       flex: 1,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      renderCell: (params) => (
+        <Box display="flex" gap={1}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => handleUpdate(params.row)}
+          >
+            Update
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            onClick={() => handleDelete(params.row.id)}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
     },
   ];
 

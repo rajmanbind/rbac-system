@@ -64,7 +64,7 @@ const Login = () => {
       );
 
       // Success response
-      toast.success(response.data.message || "Login successful!");
+      toast.success(response.data?.data?.message || "Login successful!");
       console.log("Logged in user:", response.data.data.user);
 
       console.log(response.data?.data?.user);
@@ -76,6 +76,8 @@ const Login = () => {
       // Error response
       if (error.response) {
         // Backend returned an error response
+
+        console.log(error.response);
         toast.error(error.response.data.message || "Something went wrong!");
       } else {
         // Network or other errors
@@ -185,9 +187,9 @@ const Login = () => {
           <div
             style={{ color: "black", marginTop: "10px", textAlign: "center" }}
           >
-            Allready Have Account?
+            Already have an account?
             <a href="/signup" style={{ color: "blue" }}>
-              Signp Up
+              Sign Up
             </a>
           </div>
         </form>

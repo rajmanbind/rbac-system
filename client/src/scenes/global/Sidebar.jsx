@@ -10,9 +10,9 @@ import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { useSelector } from "react-redux";
-
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -93,14 +93,31 @@ const Sidebar = () => {
           </MenuItem>
 
           {!isCollapsed && (
-            <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
+            <Box mb="25px" display="flex" alignItems="center" flexDirection="column">
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                width="70px"
+                height="70px"
+                overflow="hidden"
+                borderRadius= "50%"
+                // backgroundColor="red"
+                border={`2px solid ${colors.greenAccent[600]}`}
+                sx={{
+                  img: {
+                    cursor: "pointer",
+                    borderRadius: "50%",
+                    objectFit: "contain",
+                    width: "100px",
+                    height: "100px",
+                  },
+                }}
+              >
                 <img
+                
                   alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={`../../assets/user.png`}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
+                  src={`../../assets/Rajman.png`}
                 />
               </Box>
               <Box textAlign="center">
@@ -118,7 +135,7 @@ const Sidebar = () => {
               </Box>
             </Box>
           )}
-
+          {/* {Menu Items} */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
@@ -165,7 +182,6 @@ const Sidebar = () => {
               Pages
             </Typography>
 
-            {/* {user && (user.role === "Admin" || user.role === "Manager") && ( */}
             <Item
               title="Profile Form"
               to="/form"
@@ -173,14 +189,14 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            {/* )} */}
-            {/* <Item
+
+            <Item
               title="Calendar"
-              to="/calendar"
+              to="/calender"
               icon={<CalendarTodayOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            /> */}
+            />
             <Item
               title="FAQ Page"
               to="/faq"

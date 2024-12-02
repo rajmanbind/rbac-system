@@ -3,40 +3,110 @@ import { Box, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { tokens } from "../../theme"; // Assuming you're using the token system from your theme
 import { useTheme } from "@mui/material/styles";
-
+import Header from "../../components/Header";
+import StatBox from "../../components/StatBox";
+import EmailIcon from "@mui/icons-material/Email";
+import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import TrafficIcon from "@mui/icons-material/Traffic";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
 
   return (
-    <Box
-      sx={{
-        padding: "20px",
-        backgroundColor: colors.primary[400],
-        minHeight: "100vh",
-      }}
-    >
-      <Typography
-        variant="h4"
-        sx={{
-          color: colors.grey[100],
-          marginBottom: "20px",
-        }}
-      >
-        Welcome to the Dashboard
-      </Typography>
+    <Box m="20px">
+      <Box display="flex" justifyContent="spance-between" alignItems="center">
+        <Header title="DASHBOARD" subtitle="Welcome to your dashbaord" />
+      </Box>
 
-      <Typography
-        variant="body1"
-        sx={{
-          color: colors.grey[200],
-          marginBottom: "40px",
-        }}
+
+      <Box
+        display="grid"
+        gridTemplateColumns="repeat(12, 1fr)"
+        gridAutoRows="140px"
+        gap="20px"
+        mb="40px"
       >
-        Use the navigation bar to explore the features of this application. You
-        can manage your team, view invoices, and much more.
-      </Typography>
+        {/* row 1 */}
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title="12,361"
+            subtitle="Email Sent"
+            progress="0.75"
+            increase="+14%"
+            icon={
+              <EmailIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title="431,225"
+            subtitle="Sales Obtained"
+            progress="0.50"
+            increase="+21%"
+            icon={
+              <PointOfSaleIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title="32,441"
+            subtitle="New Clients"
+            progress="0.30"
+            increase="+5%"
+            icon={
+              <PersonAddIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          gridColumn="span 3"
+          backgroundColor={colors.primary[400]}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <StatBox
+            title="1,325,134"
+            subtitle="Traffic Received"
+            progress="0.80"
+            increase="+43%"
+            icon={
+              <TrafficIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              />
+            }
+          />
+        </Box>
+
+      </Box>
 
       <Box
         sx={{

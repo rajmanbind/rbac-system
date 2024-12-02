@@ -3,7 +3,8 @@ const {
   adminAccess,
   managerAccess,
   userAccess,
-  getAllUser
+  getAllUser,
+  deleteUser
 } = require("../controllers/user.controller");
 const verifyJWT = require("../middlewares/auth.middleware.js");
 const authorizedRole = require("../middlewares/role.middleware.js");
@@ -24,6 +25,7 @@ router.post(
   userAccess
 );
 
-router.get("/getAll-user",verifyJWT,getAllUser)
+router.get("/getAll-user",verifyJWT,authorizedRole("Admin","Manager"),getAllUser)
+router.post("/delete-user/:id",verifyJWT,authorizedRole("Admin"),deleteUser)
 
 module.exports = router;

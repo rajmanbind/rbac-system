@@ -1,13 +1,13 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataTeam } from "../../data/mockData";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 const Team = () => {
   const theme = useTheme();
@@ -15,6 +15,8 @@ const Team = () => {
   const [isLoading, setIsLoading] = useState(true);
   // /getAll-user
   const [userData, setUserData] = useState([]);
+
+  const user = useSelector((state) => state.user.user);
   const getAllUser = async () => {
     setIsLoading(true);
     try {
@@ -30,9 +32,10 @@ const Team = () => {
       // Success response
       console.log("Users:", response.data?.data?.users);
       setUserData(
-        response.data?.data?.users.map((d,index) => {
+        response.data?.data?.users.map((d, index) => {
           return {
-            id: d.name+"_"+index,
+            // id: d.name + "_" + index,
+            id: d._id,
             name: d.name,
             email: d.email,
             access: d.role,
@@ -110,19 +113,83 @@ const Team = () => {
         );
       },
     },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      renderCell: ({ row: { id, access } }) => (
+        <Box display="flex" gap={1}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => handleUpdate(id)}
+          >
+            Update
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            onClick={() => handleDelete(id, access)}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
   ];
+
+  const handleDelete = async (id, role) => {
+    console.log("Delete user with ID:", id);
+    if (user && user.role !== "Admin") {
+      alert(`Admin only can delete`);
+      return;
+    }
+
+    try {
+      // Make API call to login
+      const response = await axios.post(
+        `http://localhost:5000/api/users/delete-user/${id}`, // Adjust endpoint as needed
+        {},
+        {
+          withCredentials: true, // Send cookies with the request
+        }
+      );
+      console.log(response.data);
+      await getAllUser();
+    } catch (error) {
+      // Error response
+      if (error.response) {
+        // Backend returned an error response
+        console.error(error.response.data.message || "Something went wrong!");
+        alert(error.response.data.message);
+      } else {
+        // Network or other errors
+        console.error("Network error. Please try again.");
+      }
+    }
+    // Add logic to delete user (e.g., API call)
+  };
+
+  const handleUpdate = (row) => {
+    console.log("Update user:", row);
+    // Add logic to update user (e.g., open a modal or redirect to an edit form)
+    alert(`Update functionality for ${row.name} will be implemented.`);
+  };
+
   useEffect(() => {
     getAllUser();
   }, []);
 
-  if (isLoading) {
-    // Show a loading spinner or placeholder while authentication is being verified
-    return (
-      <div style={{ textAlign: "center", marginTop: "20%" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   // Show a loading spinner or placeholder while authentication is being verified
+  //   return (
+  //     <div style={{ textAlign: "center", marginTop: "20%" }}>
+  //       <p>Loading...</p>
+  //     </div>
+  //   );
+  // }
   return (
     <Box m="20px">
       <Header title="TEAM" subtitle="Managing the Team Members" />
@@ -155,9 +222,9 @@ const Team = () => {
           },
         }}
       >
-        {userData.length > 0 && (
-          <DataGrid checkboxSelection rows={userData} columns={columns} />
-        )}
+        {/* {userData.length > 0 && ( */}
+        <DataGrid checkboxSelection rows={userData} columns={columns} />
+        {/* )} */}
       </Box>
     </Box>
   );
